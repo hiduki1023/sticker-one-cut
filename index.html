@@ -1,0 +1,738 @@
+<!DOCTYPE html>
+<html lang="zh-Hant-TW">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>貼圖一刀切！｜4x4 一鍵切圖＋瞬間去背</title>
+
+  <style>
+    :root {
+      --bg: #f7f3ee;
+      --card: #fffaf4;
+      --text: #2c2520;
+      --muted: #776b62;
+      --line: #eadfd3;
+      --accent: #ff7a45;
+      --accent-dark: #e95d27;
+      --soft: #fff1e8;
+      --danger: #cc3d2b;
+      --ok: #168a55;
+      --shadow: 0 18px 45px rgba(60, 42, 25, 0.10);
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Noto Sans TC", "Microsoft JhengHei", sans-serif;
+      background:
+        radial-gradient(circle at 15% 10%, rgba(255, 122, 69, 0.16), transparent 30%),
+        radial-gradient(circle at 80% 0%, rgba(255, 209, 150, 0.28), transparent 35%),
+        var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+    }
+
+    .wrap {
+      max-width: 1100px;
+      margin: 0 auto;
+      padding: 28px 16px 48px;
+    }
+
+    .hero {
+      text-align: center;
+      margin-bottom: 22px;
+    }
+
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 7px 12px;
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      background: rgba(255, 250, 244, 0.78);
+      color: var(--muted);
+      font-size: 14px;
+      margin-bottom: 12px;
+    }
+
+    h1 {
+      margin: 0;
+      font-size: clamp(34px, 7vw, 62px);
+      line-height: 1;
+      letter-spacing: -0.06em;
+    }
+
+    .subtitle {
+      margin: 12px auto 0;
+      max-width: 720px;
+      color: var(--muted);
+      font-size: 17px;
+      line-height: 1.75;
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: 380px 1fr;
+      gap: 18px;
+      align-items: start;
+    }
+
+    .card {
+      background: rgba(255, 250, 244, 0.9);
+      backdrop-filter: blur(10px);
+      border: 1px solid var(--line);
+      border-radius: 24px;
+      padding: 18px;
+      box-shadow: var(--shadow);
+    }
+
+    .section-title {
+      font-weight: 800;
+      font-size: 18px;
+      margin-bottom: 12px;
+    }
+
+    .upload {
+      border: 2px dashed #e5c9b5;
+      border-radius: 22px;
+      background: rgba(255, 241, 232, 0.8);
+      padding: 22px 16px;
+      text-align: center;
+      cursor: pointer;
+      transition: 0.2s ease;
+    }
+
+    .upload:hover {
+      transform: translateY(-1px);
+      border-color: var(--accent);
+    }
+
+    .upload strong {
+      display: block;
+      font-size: 18px;
+      margin-bottom: 8px;
+    }
+
+    .upload span {
+      color: var(--muted);
+      font-size: 14px;
+      line-height: 1.6;
+    }
+
+    input[type="file"] {
+      display: none;
+    }
+
+    .preview {
+      margin-top: 14px;
+      border-radius: 18px;
+      overflow: hidden;
+      background:
+        linear-gradient(45deg, #ddd 25%, transparent 25%),
+        linear-gradient(-45deg, #ddd 25%, transparent 25%),
+        linear-gradient(45deg, transparent 75%, #ddd 75%),
+        linear-gradient(-45deg, transparent 75%, #ddd 75%);
+      background-size: 20px 20px;
+      background-position: 0 0, 0 10px, 10px -10px, -10px 0px;
+      border: 1px solid var(--line);
+      min-height: 180px;
+      display: grid;
+      place-items: center;
+    }
+
+    .preview img {
+      max-width: 100%;
+      display: block;
+    }
+
+    .hint {
+      color: var(--muted);
+      font-size: 13px;
+      line-height: 1.7;
+      margin: 10px 0 0;
+    }
+
+    .controls {
+      display: grid;
+      gap: 14px;
+      margin-top: 16px;
+    }
+
+    .control {
+      background: #fff;
+      border: 1px solid var(--line);
+      border-radius: 18px;
+      padding: 14px;
+    }
+
+    label {
+      display: flex;
+      justify-content: space-between;
+      gap: 12px;
+      align-items: center;
+      font-weight: 700;
+      margin-bottom: 8px;
+    }
+
+    .small {
+      font-weight: 600;
+      color: var(--muted);
+      font-size: 13px;
+    }
+
+    input[type="range"] {
+      width: 100%;
+      accent-color: var(--accent);
+    }
+
+    .color-row {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .swatch {
+      width: 34px;
+      height: 34px;
+      border-radius: 12px;
+      border: 2px solid #fff;
+      outline: 1px solid var(--line);
+      background: #fff;
+      flex: none;
+    }
+
+    .btns {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 10px;
+      margin-top: 16px;
+    }
+
+    button {
+      border: 0;
+      border-radius: 16px;
+      padding: 14px 16px;
+      font-weight: 900;
+      font-size: 16px;
+      cursor: pointer;
+      transition: 0.18s ease;
+      color: #fff;
+      background: var(--accent);
+      box-shadow: 0 12px 24px rgba(255, 122, 69, 0.24);
+    }
+
+    button:hover {
+      transform: translateY(-1px);
+      background: var(--accent-dark);
+    }
+
+    button.secondary {
+      color: var(--text);
+      background: #fff;
+      border: 1px solid var(--line);
+      box-shadow: none;
+    }
+
+    button:disabled {
+      cursor: not-allowed;
+      transform: none;
+      opacity: 0.45;
+    }
+
+    .status {
+      margin-top: 12px;
+      padding: 12px 14px;
+      border-radius: 16px;
+      background: #fff;
+      border: 1px solid var(--line);
+      color: var(--muted);
+      font-size: 14px;
+      line-height: 1.65;
+    }
+
+    .status.ok {
+      color: var(--ok);
+      border-color: rgba(22, 138, 85, 0.25);
+      background: rgba(22, 138, 85, 0.06);
+    }
+
+    .status.err {
+      color: var(--danger);
+      border-color: rgba(204, 61, 43, 0.25);
+      background: rgba(204, 61, 43, 0.06);
+    }
+
+    .result-head {
+      display: flex;
+      justify-content: space-between;
+      gap: 12px;
+      align-items: end;
+      margin-bottom: 14px;
+    }
+
+    .result-head p {
+      margin: 0;
+      color: var(--muted);
+      font-size: 14px;
+      line-height: 1.55;
+    }
+
+    .stickers {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 12px;
+    }
+
+    .sticker {
+      background: #fff;
+      border: 1px solid var(--line);
+      border-radius: 18px;
+      padding: 10px;
+      min-height: 120px;
+    }
+
+    .checker {
+      aspect-ratio: 1;
+      border-radius: 14px;
+      overflow: hidden;
+      display: grid;
+      place-items: center;
+      background:
+        linear-gradient(45deg, #ddd 25%, transparent 25%),
+        linear-gradient(-45deg, #ddd 25%, transparent 25%),
+        linear-gradient(45deg, transparent 75%, #ddd 75%),
+        linear-gradient(-45deg, transparent 75%, #ddd 75%);
+      background-size: 18px 18px;
+      background-position: 0 0, 0 9px, 9px -9px, -9px 0px;
+      border: 1px solid #eee;
+    }
+
+    .sticker canvas {
+      width: 100%;
+      height: 100%;
+      display: block;
+    }
+
+    .sticker-name {
+      margin-top: 8px;
+      font-size: 12px;
+      color: var(--muted);
+      text-align: center;
+      font-weight: 700;
+    }
+
+    .empty {
+      min-height: 440px;
+      display: grid;
+      place-items: center;
+      text-align: center;
+      color: var(--muted);
+      border: 1px dashed var(--line);
+      border-radius: 22px;
+      background: rgba(255,255,255,0.42);
+      line-height: 1.8;
+      padding: 18px;
+    }
+
+    .footer {
+      margin-top: 18px;
+      color: var(--muted);
+      font-size: 13px;
+      text-align: center;
+      line-height: 1.7;
+    }
+
+    @media (max-width: 900px) {
+      .grid {
+        grid-template-columns: 1fr;
+      }
+
+      .stickers {
+        grid-template-columns: repeat(2, 1fr);
+      }
+    }
+
+    @media (max-width: 420px) {
+      .wrap {
+        padding-inline: 12px;
+      }
+
+      .card {
+        padding: 14px;
+        border-radius: 20px;
+      }
+
+      .stickers {
+        gap: 9px;
+      }
+
+      .sticker {
+        padding: 8px;
+        border-radius: 15px;
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <main class="wrap">
+    <section class="hero">
+      <div class="badge">⚡ 純前端工具｜圖片不會上傳到伺服器</div>
+      <h1>貼圖一刀切！</h1>
+      <p class="subtitle">
+        上傳 4x4 貼圖合集，一鍵切成 16 張 PNG，並用背景色偵測做瞬間去背。
+        適合白底、淺底、單色背景的 LINE 貼圖素材。
+      </p>
+    </section>
+
+    <section class="grid">
+      <aside class="card">
+        <div class="section-title">1. 上傳 4x4 圖片</div>
+
+        <label class="upload" for="fileInput">
+          <strong>點這裡選擇圖片</strong>
+          <span>建議使用正方形 4x4 圖，例如 2048×2048 或 4096×4096。</span>
+        </label>
+        <input type="file" id="fileInput" accept="image/*" />
+
+        <div class="preview" id="previewBox">
+          <span class="hint">尚未上傳圖片</span>
+        </div>
+
+        <p class="hint">
+          小提醒：圖片如果不是正方形，工具會自動用「較短邊」置中裁成正方形，再分成 16 格。
+        </p>
+
+        <div class="controls">
+          <div class="control">
+            <label>
+              去背強度
+              <span class="small"><span id="thresholdText">60</span></span>
+            </label>
+            <input type="range" id="threshold" min="10" max="180" value="60" />
+            <p class="hint">數字越高，去掉越多背景；如果人物也被吃掉，就調低。</p>
+          </div>
+
+          <div class="control">
+            <label>
+              背景色
+              <span class="small">可用圖片取色</span>
+            </label>
+            <div class="color-row">
+              <div class="swatch" id="swatch"></div>
+              <span class="hint" id="colorText">尚未偵測</span>
+            </div>
+            <p class="hint">
+              預設會抓左上角顏色。你也可以在上方預覽圖點一下背景，重新指定要去掉的顏色。
+            </p>
+          </div>
+        </div>
+
+        <div class="btns">
+          <button id="processBtn" disabled>一刀切＋瞬間去背</button>
+          <button id="downloadBtn" class="secondary" disabled>下載 ZIP</button>
+          <button id="resetBtn" class="secondary">清空重來</button>
+        </div>
+
+        <div class="status" id="status">先上傳一張 4x4 圖片，就可以開始切。</div>
+      </aside>
+
+      <section class="card">
+        <div class="result-head">
+          <div>
+            <div class="section-title">2. 預覽 16 張貼圖</div>
+            <p>切好的 PNG 會顯示在這裡，確認沒問題後直接下載 ZIP。</p>
+          </div>
+        </div>
+
+        <div id="empty" class="empty">
+          上傳圖片後，按下「一刀切＋瞬間去背」<br />
+          這裡就會出現 16 張貼圖。
+        </div>
+
+        <div class="stickers" id="stickers" style="display:none;"></div>
+      </section>
+    </section>
+
+    <div class="footer">
+      貼圖一刀切！｜本工具在瀏覽器本機處理圖片，不會把圖片傳到伺服器。<br />
+      去背方式為「背景色偵測」，適合乾淨背景；複雜背景建議先用專業去背工具處理。
+    </div>
+  </main>
+
+  <script src="https://cdn.jsdelivr.net/npm/jszip@3.10.1/dist/jszip.min.js"></script>
+
+  <script>
+    const fileInput = document.getElementById("fileInput");
+    const previewBox = document.getElementById("previewBox");
+    const threshold = document.getElementById("threshold");
+    const thresholdText = document.getElementById("thresholdText");
+    const swatch = document.getElementById("swatch");
+    const colorText = document.getElementById("colorText");
+    const processBtn = document.getElementById("processBtn");
+    const downloadBtn = document.getElementById("downloadBtn");
+    const resetBtn = document.getElementById("resetBtn");
+    const statusBox = document.getElementById("status");
+    const stickersBox = document.getElementById("stickers");
+    const emptyBox = document.getElementById("empty");
+
+    let sourceImage = null;
+    let previewImg = null;
+    let bgColor = null;
+    let outputCanvases = [];
+
+    threshold.addEventListener("input", () => {
+      thresholdText.textContent = threshold.value;
+      if (sourceImage && outputCanvases.length) processImage(false);
+    });
+
+    fileInput.addEventListener("change", async (event) => {
+      const file = event.target.files[0];
+      if (!file) return;
+
+      try {
+        const dataUrl = await readFileAsDataURL(file);
+        sourceImage = await loadImage(dataUrl);
+        outputCanvases = [];
+
+        previewBox.innerHTML = "";
+        previewImg = document.createElement("img");
+        previewImg.src = dataUrl;
+        previewImg.alt = "上傳圖片預覽";
+        previewBox.appendChild(previewImg);
+
+        bgColor = getAutoBackgroundColor(sourceImage);
+        updateColorUI();
+
+        processBtn.disabled = false;
+        downloadBtn.disabled = true;
+        stickersBox.style.display = "none";
+        stickersBox.innerHTML = "";
+        emptyBox.style.display = "grid";
+
+        setStatus("圖片已載入。你可以直接一刀切，或先點預覽圖的背景重新取色。", "ok");
+      } catch (err) {
+        setStatus("圖片讀取失敗，請換一張圖片再試。", "err");
+      }
+    });
+
+    previewBox.addEventListener("click", (event) => {
+      if (!sourceImage || !previewImg || event.target !== previewImg) return;
+
+      const rect = previewImg.getBoundingClientRect();
+      const scaleX = sourceImage.width / rect.width;
+      const scaleY = sourceImage.height / rect.height;
+
+      const x = Math.max(0, Math.min(sourceImage.width - 1, Math.floor((event.clientX - rect.left) * scaleX)));
+      const y = Math.max(0, Math.min(sourceImage.height - 1, Math.floor((event.clientY - rect.top) * scaleY)));
+
+      bgColor = getPixelColor(sourceImage, x, y);
+      updateColorUI();
+
+      if (outputCanvases.length) processImage(false);
+      setStatus("已重新指定背景色。", "ok");
+    });
+
+    processBtn.addEventListener("click", () => processImage(true));
+    downloadBtn.addEventListener("click", downloadZip);
+
+    resetBtn.addEventListener("click", () => {
+      fileInput.value = "";
+      sourceImage = null;
+      previewImg = null;
+      bgColor = null;
+      outputCanvases = [];
+      previewBox.innerHTML = '<span class="hint">尚未上傳圖片</span>';
+      stickersBox.innerHTML = "";
+      stickersBox.style.display = "none";
+      emptyBox.style.display = "grid";
+      processBtn.disabled = true;
+      downloadBtn.disabled = true;
+      colorText.textContent = "尚未偵測";
+      swatch.style.background = "#fff";
+      setStatus("先上傳一張 4x4 圖片，就可以開始切。", "");
+    });
+
+    function readFileAsDataURL(file) {
+      return new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onload = () => resolve(reader.result);
+        reader.onerror = reject;
+        reader.readAsDataURL(file);
+      });
+    }
+
+    function loadImage(src) {
+      return new Promise((resolve, reject) => {
+        const img = new Image();
+        img.onload = () => resolve(img);
+        img.onerror = reject;
+        img.src = src;
+      });
+    }
+
+    function getAutoBackgroundColor(img) {
+      return getPixelColor(img, 5, 5);
+    }
+
+    function getPixelColor(img, x, y) {
+      const canvas = document.createElement("canvas");
+      canvas.width = img.width;
+      canvas.height = img.height;
+      const ctx = canvas.getContext("2d", { willReadFrequently: true });
+      ctx.drawImage(img, 0, 0);
+
+      const p = ctx.getImageData(x, y, 1, 1).data;
+      return { r: p[0], g: p[1], b: p[2] };
+    }
+
+    function updateColorUI() {
+      if (!bgColor) return;
+      const css = `rgb(${bgColor.r}, ${bgColor.g}, ${bgColor.b})`;
+      swatch.style.background = css;
+      colorText.textContent = `RGB(${bgColor.r}, ${bgColor.g}, ${bgColor.b})`;
+    }
+
+    function processImage(showMessage = true) {
+      if (!sourceImage) {
+        setStatus("請先上傳圖片。", "err");
+        return;
+      }
+
+      const cutSize = Math.min(sourceImage.width, sourceImage.height);
+      const startX = Math.floor((sourceImage.width - cutSize) / 2);
+      const startY = Math.floor((sourceImage.height - cutSize) / 2);
+      const cellSize = cutSize / 4;
+      const outSize = Math.round(cellSize);
+
+      stickersBox.innerHTML = "";
+      outputCanvases = [];
+
+      for (let row = 0; row < 4; row++) {
+        for (let col = 0; col < 4; col++) {
+          const index = row * 4 + col + 1;
+
+          const canvas = document.createElement("canvas");
+          canvas.width = outSize;
+          canvas.height = outSize;
+
+          const ctx = canvas.getContext("2d", { willReadFrequently: true });
+          ctx.drawImage(
+            sourceImage,
+            startX + col * cellSize,
+            startY + row * cellSize,
+            cellSize,
+            cellSize,
+            0,
+            0,
+            outSize,
+            outSize
+          );
+
+          removeBackground(canvas, bgColor, Number(threshold.value));
+          outputCanvases.push(canvas);
+
+          const item = document.createElement("div");
+          item.className = "sticker";
+
+          const checker = document.createElement("div");
+          checker.className = "checker";
+          checker.appendChild(canvas);
+
+          const name = document.createElement("div");
+          name.className = "sticker-name";
+          name.textContent = `sticker_${String(index).padStart(2, "0")}.png`;
+
+          item.appendChild(checker);
+          item.appendChild(name);
+          stickersBox.appendChild(item);
+        }
+      }
+
+      emptyBox.style.display = "none";
+      stickersBox.style.display = "grid";
+      downloadBtn.disabled = false;
+
+      if (showMessage) {
+        setStatus("完成！已切成 16 張 PNG，確認預覽後可以下載 ZIP。", "ok");
+      }
+    }
+
+    function removeBackground(canvas, color, strength) {
+      const ctx = canvas.getContext("2d", { willReadFrequently: true });
+      const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+      const data = imageData.data;
+
+      const bg = color || { r: data[0], g: data[1], b: data[2] };
+
+      for (let i = 0; i < data.length; i += 4) {
+        const r = data[i];
+        const g = data[i + 1];
+        const b = data[i + 2];
+
+        const diff = Math.abs(r - bg.r) + Math.abs(g - bg.g) + Math.abs(b - bg.b);
+
+        if (diff < strength) {
+          data[i + 3] = 0;
+        } else if (diff < strength + 35) {
+          // 邊緣柔化，避免去背像鋸齒。
+          const alpha = Math.min(255, Math.max(0, Math.round(((diff - strength) / 35) * 255)));
+          data[i + 3] = Math.min(data[i + 3], alpha);
+        }
+      }
+
+      ctx.putImageData(imageData, 0, 0);
+    }
+
+    async function downloadZip() {
+      if (!outputCanvases.length) {
+        setStatus("還沒有可下載的貼圖，請先一刀切。", "err");
+        return;
+      }
+
+      try {
+        setStatus("正在打包 ZIP…", "");
+        const zip = new JSZip();
+        const folder = zip.folder("貼圖一刀切_stickers");
+
+        for (let i = 0; i < outputCanvases.length; i++) {
+          const canvas = outputCanvases[i];
+          const blob = await canvasToBlob(canvas);
+          folder.file(`sticker_${String(i + 1).padStart(2, "0")}.png`, blob);
+        }
+
+        const content = await zip.generateAsync({ type: "blob" });
+        const url = URL.createObjectURL(content);
+
+        const a = document.createElement("a");
+        a.href = url;
+        a.download = "貼圖一刀切_16張貼圖.zip";
+        document.body.appendChild(a);
+        a.click();
+        a.remove();
+
+        URL.revokeObjectURL(url);
+        setStatus("ZIP 已完成下載。", "ok");
+      } catch (err) {
+        setStatus("ZIP 打包失敗，可能是瀏覽器暫時不支援或圖片太大。", "err");
+      }
+    }
+
+    function canvasToBlob(canvas) {
+      return new Promise((resolve) => {
+        canvas.toBlob((blob) => resolve(blob), "image/png");
+      });
+    }
+
+    function setStatus(text, type) {
+      statusBox.textContent = text;
+      statusBox.className = "status";
+      if (type) statusBox.classList.add(type);
+    }
+  </script>
+</body>
+</html>
